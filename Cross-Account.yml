@@ -1,0 +1,36 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: CrossAccount between two account
+Parameters:
+  TrustedAccountId:
+    Type: String
+
+Resources:
+  IAMManagedPolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      Description: IAM role Managed Policy
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+        - Effect: Allow
+          Action:
+            - iam:trustedadvisor
+          Resource: "*"
+  IAMRole:
+    Type: 'AWS::IAM::Role'
+    DependsOn:
+      - IAMManagedPolicy
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              AWS: !Sub 'arn:aws:iam::${TrustedAccountId}:user/admin'
+            Action:
+              - 'sts:AssumeRole'
+      ManagedPolicyArns:
+        - arn:aws:iam::249990965851:policy/trustedacces
+      Tags:
+        - Key: Name
+          Value: TrustAccess
